@@ -3,12 +3,20 @@ package main
 import (
 	"awesomeProject/middleware"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
+
 	r := gin.Default()
 
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	r.POST("/login", loginHandler)
 
 	authorized := r.Group("/")
@@ -17,7 +25,10 @@ func main() {
 		authorized.GET("/protected", protectedHandler)
 	}
 
-	r.Run(":8080")
+	err = r.Run(":" + os.Getenv("PORT"))
+	if err != nil {
+		log.Fatal("Server failed to start: ", err)
+	}
 }
 
 func loginHandler(c *gin.Context) {
